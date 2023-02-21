@@ -30,14 +30,6 @@
                 <default_processor_queue>default</default_processor_queue>
                 <redelivered_delay_time>0</redelivered_delay_time>
             </client>
-            <rabbitmq_amqp>
-                <host>localhost</host>
-                <port>5672</port>
-                <user>guest</user>
-                <pass>guest</pass>
-                <vhost>/</vhost>
-                <lazy>1</lazy>
-            </rabbitmq_amqp>
             <amqp>
                 <port>5672</port>
                 <lazy>1</lazy>

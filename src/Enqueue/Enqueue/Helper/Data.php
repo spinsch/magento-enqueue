@@ -1,8 +1,7 @@
 <?php
 
-use Enqueue\Client\Message;
 use Enqueue\SimpleClient\SimpleClient;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Processor;
 
 class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
 {
@@ -26,15 +25,15 @@ class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
                 throw new \LogicException(sprintf('Helper name is not set for processor: "%s"', $name));
             }
 
-            $this->getClient()->bind($config['topic'], $name, function () use ($config) {
+            $this->getClient()->bindTopic($config['topic'], function () use ($config) {
                 $processor = Mage::helper($config['helper']);
 
-                if (false == $processor instanceof PsrProcessor) {
-                    throw new \LogicException(sprintf('Expects processor is instance of: "%s"', PsrProcessor::class));
+                if (false == $processor instanceof Processor) {
+                    throw new \LogicException(sprintf('Expects processor is instance of: "%s"', Processor::class));
                 }
 
                 return call_user_func_array([$processor, 'process'], func_get_args());
-            });
+            }, $name);
         }
     }
 
@@ -44,7 +43,7 @@ class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
      */
     public function send($topic, $message)
     {
-        $this->getProducer()->send($topic, $message);
+        $this->getProducer()->sendEvent($topic, $message);
     }
 
     /**
@@ -76,9 +75,6 @@ class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
         $config['transport'] = [];
 
         switch ($name = Mage::getStoreConfig('enqueue/transport/default')) {
-            case 'rabbitmq_amqp':
-                $config['transport'] = $this->getRabbitMqAmqpConfig();
-                break;
             case 'amqp':
                 $config['transport'] = $this->getAmqpConfig();
                 break;
@@ -117,23 +113,8 @@ class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
             'app_name' => Mage::getStoreConfig('enqueue/client/app_name'),
             'router_topic' => Mage::getStoreConfig('enqueue/client/router_topic'),
             'router_queue' => Mage::getStoreConfig('enqueue/client/router_queue'),
-            'default_processor_queue' => Mage::getStoreConfig('enqueue/client/default_processor_queue'),
+            'default_queue' => Mage::getStoreConfig('enqueue/client/default_processor_queue'),
             'redelivered_delay_time' => (int) Mage::getStoreConfig('enqueue/client/redelivered_delay_time'),
-        ]];
-    }
-
-    /**
-     * @return array
-     */
-    public function getRabbitMqAmqpConfig()
-    {
-        return ['rabbitmq_amqp' => [
-            'host' => Mage::getStoreConfig('enqueue/rabbitmq_amqp/host'),
-            'port' =>  (int) Mage::getStoreConfig('enqueue/rabbitmq_amqp/port'),
-            'user' => Mage::getStoreConfig('enqueue/rabbitmq_amqp/user'),
-            'pass' => Mage::getStoreConfig('enqueue/rabbitmq_amqp/pass'),
-            'vhost' => Mage::getStoreConfig('enqueue/rabbitmq_amqp/vhost'),
-            'lazy' => (bool) Mage::getStoreConfig('enqueue/rabbitmq_amqp/lazy'),
         ]];
     }
 
@@ -142,6 +123,10 @@ class Enqueue_Enqueue_Helper_Data extends Mage_Core_Helper_Data
      */
     public function getAmqpConfig()
     {
+        return [
+            'dsn' => Mage::getStoreConfig('enqueue/amqp/host')
+        ];
+
         return ['amqp' => [
             'host' => Mage::getStoreConfig('enqueue/amqp/host'),
             'port' => (int) Mage::getStoreConfig('enqueue/amqp/port'),

@@ -1,5 +1,7 @@
 <?php
-use Enqueue\AmqpExt\AmqpContext;
+use Enqueue\AmqpExt\AmqpContext as AmqpExtContect;
+use Enqueue\AmqpLib\AmqpContext as AmqpLibContect;
+use Enqueue\AmqpBunny\AmqpContext as AmqpBunnyContect;
 use Enqueue\Stomp\StompContext;
 use Enqueue\Fs\FsContext;
 use Enqueue\Sqs\SqsContext;
@@ -17,16 +19,17 @@ class Enqueue_Enqueue_Model_Config_Field_Transportdefault extends Mage_Core_Mode
 
         $transport = $this->getValue();
 
+        $amqs = [
+            'enqueue/amqp-ext' => AmqpExtContect::class,
+            'enqueue/amqp-lib' => AmqpLibContect::class,
+            'enqueue/amqp-bunny' => AmqpBunnyContect::class
+        ];
+
         $data = [
-            'rabbitmq_amqp' => [
-                'name' => 'RabbitMQ AMQP',
-                'package' => 'enqueue/amqp-ext',
-                'class' => AmqpContext::class,
-            ],
             'amqp' => [
-                'name' => 'AMQP',
-                'package' => 'enqueue/amqp-ext',
-                'class' => AmqpContext::class,
+                'name' => 'AMQP (like RabbitMQ)',
+                'package' => implode(' or ', array_keys($amqs)),
+                'class' => array_values($amqs),
             ],
             'rabbitmq_stomp' => [
                 'name' => 'RabbitMQ STOMP',
@@ -74,12 +77,22 @@ class Enqueue_Enqueue_Model_Config_Field_Transportdefault extends Mage_Core_Mode
     }
 
     /**
-     * @param string $class
+     * @param string|array $class
      *
      * @return bool
      */
     private function isClassExists($class)
     {
+        if (is_array($class)) {
+            foreach ($class as $declaration) {
+                if ($this->isClassExists($declaration)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         try {
             return class_exists($class);
         } catch (\Exception $e) { // in dev mode error handler throws exception

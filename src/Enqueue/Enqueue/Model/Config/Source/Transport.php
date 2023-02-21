@@ -10,8 +10,7 @@ class Enqueue_Enqueue_Model_Config_Source_Transport
     public function toOptionArray()
     {
         return [
-            ['value' => 'rabbitmq_amqp', 'label' => Mage::helper('enqueue')->__('RabbitMQ AMQP')],
-            ['value' => 'amqp', 'label' => Mage::helper('enqueue')->__('AMQP')],
+            ['value' => 'amqp', 'label' => Mage::helper('enqueue')->__('AMQP (like RabbitMQ)')],
             ['value' => 'rabbitmq_stomp', 'label' => Mage::helper('enqueue')->__('RabbitMQ STOMP')],
             ['value' => 'stomp', 'label' => Mage::helper('enqueue')->__('STOMP')],
             ['value' => 'fs', 'label' => Mage::helper('enqueue')->__('Filesystem')],

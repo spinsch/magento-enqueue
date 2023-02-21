@@ -5,8 +5,18 @@
   "license": "MIT",
   "keywords": ["messaging", "queue", "amqp", "magento", "rabbitmq", "kafka", "redis", "sqs", "google-pubsub", "amazon-sqs", "gearman", "beanstalk"],
   "require": {
-    "enqueue/enqueue": "^0.8",
-    "enqueue/simple-client": "^0.8"
+    "enqueue/enqueue": "^0.10",
+    "enqueue/simple-client": "^0.10"
+  },
+  "suggest": {
+    "enqueue/amqp-ext": "To use AMQP (like RabbitMQ) with amqp-ext",
+    "enqueue/amqp-lib": "To use AMQP (like RabbitMQ) with amqp-lib",
+    "enqueue/amqp-bunny": "To use AMQP (like RabbitMQ) with amqp-bunny",
+    "enqueue/stomp": "To use STOMP",
+    "enqueue/fs": "To use Filesystem as Message Queue",
+    "enqueue/sqs": "To use Amazon AWS SQS",
+    "enqueue/redis": "To use Redis as Message Queue",
+    "enqueue/dbal": "To use Doctrine DBAL as Message Queue"
   },
   "extra":{
     "map": [
